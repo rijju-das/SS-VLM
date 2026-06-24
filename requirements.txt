@@ -21,7 +21,4 @@ opencv-python
 matplotlib
 grad-cam
 
-# Optional for notebooks / quantized VLM baselines:
-jupyter
-notebook
-bitsandbytes
+
