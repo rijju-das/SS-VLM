@@ -352,7 +352,6 @@ top_k = 9
 ## Key Code
 
 - `Pipeline/SS-VLM_Pipeline_v2.py`: final v2 training, retrieval, learned-AU RAG fusion, and reporting pipeline.
-- `Pipeline/V2_EXPERIMENTS.md`: v2 experiment notes and command overview.
 - `tools/extract_openface2_aus.py`: RAF-DB OpenFace 2.0 AU extraction.
 - `tools/extract_openface3_aus.py`: optional OpenFace 3 smoke-test extraction.
 - `tools/train_au_emotion_tabular.py`: learned RandomForest AU prior.
