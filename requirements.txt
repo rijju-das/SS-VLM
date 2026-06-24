@@ -1,0 +1,27 @@
+# SS-VLM Python environment
+#
+# Install PyTorch for the server CUDA/Python version first if needed:
+#   pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
+#
+# Then install the rest:
+#   pip install -r requirements.txt
+
+torch
+torchvision
+timm
+transformers
+accelerate
+scikit-learn
+joblib
+numpy
+pandas
+tqdm
+Pillow
+opencv-python
+matplotlib
+grad-cam
+
+# Optional for notebooks / quantized VLM baselines:
+jupyter
+notebook
+bitsandbytes

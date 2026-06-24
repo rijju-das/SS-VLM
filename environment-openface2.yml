@@ -1,0 +1,20 @@
+name: openface2
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - cmake
+  - make
+  - ninja
+  - pkg-config
+  - wget
+  - git
+  - c-compiler
+  - cxx-compiler
+  - libopencv
+  - openblas
+  - dlib-cpp
+  - boost-cpp
+  - tbb
+  - pandas
+  - tqdm
