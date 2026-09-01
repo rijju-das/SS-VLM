@@ -1,0 +1,49 @@
+#!/bin/bash
+
+#SBATCH -p compute
+#SBATCH -J vlm_rafdb
+#SBATCH --cpus-per-task=4
+#SBATCH --mem=60000
+#SBATCH --gres=gpu:1
+#SBATCH -t 2-00:00:00
+#SBATCH --mail-type=END --mail-user=riju.das@ucdconnect.ie
+
+source /home/rdas/miniconda/etc/profile.d/conda.sh
+conda activate ssvlm
+
+cd /home/rdas/SS-VLM
+
+export PYTHONUNBUFFERED=1
+export TOKENIZERS_PARALLELISM=false
+export HF_HOME=/home/rdas/SS-VLM/outputs_vlm/hf_cache
+
+PY=/home/rdas/SS-VLM/zero_shot_eval_hf.py
+DATA=/home/rdas/RAF-DB
+OUT=/home/rdas/SS-VLM/outputs_vlm/zero_shot/rafdb
+
+run_vlm () {
+  local model_key="$1"
+  local output_dir="${OUT}/${model_key}"
+
+  echo "============================================================"
+  echo "Running zero-shot RAF-DB evaluation for ${model_key}"
+  echo "Output: ${output_dir}"
+  echo "============================================================"
+
+  mkdir -p "${output_dir}"
+
+  python "${PY}" \
+    --model "${model_key}" \
+    --dataset rafdb \
+    --data-root "${DATA}" \
+    --split test \
+    --output-dir "${output_dir}" \
+    --device cuda \
+    --dtype bfloat16 \
+    --batch-size 1 \
+    --num-workers 2 \
+    --max-new-tokens 8
+}
+
+run_vlm instructblip
+run_vlm llava15

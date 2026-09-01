@@ -27,8 +27,8 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Plot v2 SFRA-RAG reliability diagram.")
     parser.add_argument(
         "--predictions-csv",
-        default="outputs_v2/metrics/rag_fusion/sfra_v2_l005_seed42/sfra_v2_l005_seed42_rag_predictions.csv",
-        help="Best SFRA-RAG prediction CSV.",
+        default="outputs_v2/metrics/rag_fusion_learned_au/beta005/sfra_v2_l005_seed42/sfra_v2_l005_seed42_rag_predictions.csv",
+        help="Best learned-AU SFRA-RAG prediction CSV.",
     )
     parser.add_argument("--bins", type=int, default=10, help="Number of equal-width ECE bins.")
     parser.add_argument(
@@ -120,7 +120,7 @@ def main() -> None:
     args = parse_args()
     outputs = [Path(path) for path in args.output]
     if not outputs:
-        outputs = [Path("outputs_v2/figures/reliability_diagram_sfra_v2.pdf")]
+        outputs = [Path("outputs_v2/figures/reliability_diagram_sfra_v2_learned_au.pdf")]
     rows = read_rows(Path(args.predictions_csv))
     plot(rows, outputs, args.bins, args.pad_inches)
 

@@ -1,0 +1,116 @@
+#!/bin/bash
+
+#SBATCH -p compute
+#SBATCH -J v2_rag_lau
+#SBATCH --cpus-per-task=4
+#SBATCH --mem=30000
+#SBATCH --gres=gpu:1
+#SBATCH -t 2-00:00:00
+#SBATCH --mail-type=END --mail-user=riju.das@ucdconnect.ie
+
+source /home/rdas/miniconda/etc/profile.d/conda.sh
+conda activate ssvlm
+
+cd /home/rdas/SS-VLM
+
+export PYTHONUNBUFFERED=1
+
+PY=/home/rdas/SS-VLM/Pipeline/SS-VLM_Pipeline_v2.py
+DATA=/home/rdas/RAF-DB
+AU_CSV=/home/rdas/SS-VLM/outputs/rafdb_openface2_aus.csv
+
+AU_MODEL_DIR=/home/rdas/SS-VLM/outputs_v2/au_calibrator/au_both_rf_seed42
+AU_MODEL=${AU_MODEL_DIR}/au_emotion_tabular.joblib
+AU_MAPPING_DIR=/home/rdas/SS-VLM/outputs_v2/au_mapping/learned_au_mapping_intensity_elasticnet
+BASE_METRICS=/home/rdas/SS-VLM/outputs_v2/metrics/rag_fusion_learned_au/beta005
+
+if [ ! -f "${AU_CSV}" ]; then
+  echo "Missing OpenFace AU CSV: ${AU_CSV}"
+  exit 1
+fi
+
+if [ ! -f "${AU_MODEL}" ]; then
+  echo "Training learned AU prior model..."
+  python tools/train_au_emotion_tabular.py \
+    --au-csv "${AU_CSV}" \
+    --output-dir /home/rdas/SS-VLM/outputs_v2/au_calibrator \
+    --run-name au_both_rf_seed42 \
+    --feature-set both \
+    --model random_forest \
+    --selection-metric accuracy \
+    --n-estimators 1200 \
+    --seed 42
+fi
+
+if [ ! -f "${AU_MAPPING_DIR}/learned_au_mapping_summary.csv" ]; then
+  echo "Learning interpretable AU-emotion support table..."
+  python tools/learn_au_emotion_mapping.py \
+    --au-csv "${AU_CSV}" \
+    --output-dir /home/rdas/SS-VLM/outputs_v2/au_mapping \
+    --run-name learned_au_mapping_intensity_elasticnet \
+    --feature-set intensity \
+    --seeds 42,123,2026,7,99 \
+    --permutation-repeats 10 \
+    --top-k 6
+fi
+
+run_rag () {
+  local model_name="$1"
+  local model_variant="$2"
+  local model_path="$3"
+  local metrics="${BASE_METRICS}/${model_name}"
+
+  echo "============================================================"
+  echo "Running learned-AU RAG for ${model_name}"
+  echo "Model variant: ${model_variant}"
+  echo "Model path: ${model_path}"
+  echo "AU model: ${AU_MODEL}"
+  echo "Metrics: ${metrics}"
+  echo "============================================================"
+
+  if [ ! -f "${model_path}" ]; then
+    echo "Missing model checkpoint: ${model_path}"
+    exit 1
+  fi
+
+  mkdir -p "${metrics}"
+
+  python "${PY}" \
+    --mode rag \
+    --data_dir "${DATA}" \
+    --model_variant "${model_variant}" \
+    --model_path "${model_path}" \
+    --metrics_dir "${metrics}" \
+    --openface_au_csv "${AU_CSV}" \
+    --au_model_path "${AU_MODEL}" \
+    --top_k 9 \
+    --rag_fusion weighted \
+    --rag_alpha 0.25 \
+    --au_fusion_beta 0.05 \
+    --retrieval_temperature 0.10 \
+    --batch_size 32 \
+    --num_workers 4 \
+    --num_reports 0 \
+    --report_sampling class_balanced \
+    --reports_per_class 2
+
+  python tools/evaluate_hallucination_metrics.py \
+    --reports-json "${metrics}/${model_name}_rag_sample_reports.json" \
+    --predictions-csv "${metrics}/${model_name}_rag_predictions.csv" \
+    --output-json "${metrics}/${model_name}_hallucination_metrics.json" \
+    --output-csv "${metrics}/${model_name}_hallucination_metrics.csv" \
+    --llm-judge \
+    --judge-model Qwen/Qwen2.5-1.5B-Instruct
+}
+
+run_rag plain_vit_ce_seed42 plain_vit /home/rdas/SS-VLM/outputs_v2/models/seed_sweep/plain_vit_ce_seed42.pth
+run_rag plain_vit_ce_seed123 plain_vit /home/rdas/SS-VLM/outputs_v2/models/seed_sweep/plain_vit_ce_seed123.pth
+run_rag plain_vit_ce_seed2026 plain_vit /home/rdas/SS-VLM/outputs_v2/models/seed_sweep/plain_vit_ce_seed2026.pth
+
+run_rag vit_gem_ce_seed42 vit_gem /home/rdas/SS-VLM/outputs_v2/models/seed_sweep/vit_gem_ce_seed42.pth
+run_rag vit_gem_ce_seed123 vit_gem /home/rdas/SS-VLM/outputs_v2/models/seed_sweep/vit_gem_ce_seed123.pth
+run_rag vit_gem_ce_seed2026 vit_gem /home/rdas/SS-VLM/outputs_v2/models/seed_sweep/vit_gem_ce_seed2026.pth
+
+run_rag sfra_v2_l005_seed42 sfra_v2 /home/rdas/SS-VLM/outputs_v2/models/seed_sweep/sfra_v2_l005_seed42.pth
+run_rag sfra_v2_l005_seed123 sfra_v2 /home/rdas/SS-VLM/outputs_v2/models/seed_sweep/sfra_v2_l005_seed123.pth
+run_rag sfra_v2_l005_seed2026 sfra_v2 /home/rdas/SS-VLM/outputs_v2/models/seed_sweep/sfra_v2_l005_seed2026.pth

@@ -1,0 +1,61 @@
+#!/bin/bash
+
+#SBATCH -p compute
+#SBATCH -J ssvlm_v2_base
+#SBATCH --cpus-per-task=4
+#SBATCH --mem=30000
+#SBATCH --gres=gpu:1
+#SBATCH -t 2-00:00:00
+#SBATCH --mail-type=END --mail-user=riju.das@ucdconnect.ie
+
+source /home/rdas/miniconda/etc/profile.d/conda.sh
+conda activate ssvlm
+
+cd /home/rdas/SS-VLM
+
+mkdir -p /home/rdas/SS-VLM/outputs_v2/models/seed_sweep
+mkdir -p /home/rdas/SS-VLM/outputs_v2/metrics/seed_sweep
+
+PY=/home/rdas/SS-VLM/Pipeline/SS-VLM_Pipeline_v2.py
+DATA=/home/rdas/RAF-DB
+METRICS=/home/rdas/SS-VLM/outputs_v2/metrics/seed_sweep
+MODELS=/home/rdas/SS-VLM/outputs_v2/models/seed_sweep
+
+for SEED in 42 123 2026
+do
+  python "${PY}" \
+    --mode train \
+    --data_dir "${DATA}" \
+    --model_variant plain_vit \
+    --model_path "${MODELS}/plain_vit_ce_seed${SEED}.pth" \
+    --metrics_dir "${METRICS}" \
+    --seed "${SEED}" \
+    --epochs 200 \
+    --early_stop_patience 30 \
+    --batch_size 32 \
+    --num_workers 4 \
+    --lambda_cont 0 \
+    --supcon_start_epoch 999 \
+    --backbone_lr 1e-5 \
+    --head_lr 1e-4 \
+    --weight_decay 0.05 \
+    --label_smoothing 0.1
+
+  python "${PY}" \
+    --mode train \
+    --data_dir "${DATA}" \
+    --model_variant vit_gem \
+    --model_path "${MODELS}/vit_gem_ce_seed${SEED}.pth" \
+    --metrics_dir "${METRICS}" \
+    --seed "${SEED}" \
+    --epochs 200 \
+    --early_stop_patience 30 \
+    --batch_size 32 \
+    --num_workers 4 \
+    --lambda_cont 0 \
+    --supcon_start_epoch 999 \
+    --backbone_lr 1e-5 \
+    --head_lr 1e-4 \
+    --weight_decay 0.05 \
+    --label_smoothing 0.1
+done

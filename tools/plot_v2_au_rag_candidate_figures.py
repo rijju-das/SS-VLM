@@ -27,7 +27,7 @@ GROUPS = {
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Create candidate AU/RAG figures from saved v2 outputs.")
-    parser.add_argument("--repo-root", default=".", help="Spectral-Symbolic-VLM repo root.")
+    parser.add_argument("--repo-root", default=".", help="SS-VLM repo root.")
     parser.add_argument(
         "--au-calibrator-dir",
         default="outputs_v2/au_calibrator/au_both_rf_seed42",

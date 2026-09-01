@@ -1,0 +1,43 @@
+#!/bin/bash
+
+#SBATCH -p compute
+#SBATCH -J v2_seed
+#SBATCH --cpus-per-task=4
+#SBATCH --mem=30000
+#SBATCH --gres=gpu:1
+#SBATCH -t 3-00:00:00
+#SBATCH --mail-type=END --mail-user=riju.das@ucdconnect.ie
+
+source /home/rdas/miniconda/etc/profile.d/conda.sh
+conda activate ssvlm
+
+cd /home/rdas/SS-VLM
+
+mkdir -p /home/rdas/SS-VLM/outputs_v2/models/seed_sweep
+mkdir -p /home/rdas/SS-VLM/outputs_v2/metrics/seed_sweep
+
+PY=/home/rdas/SS-VLM/Pipeline/SS-VLM_Pipeline_v2.py
+DATA=/home/rdas/RAF-DB
+METRICS=/home/rdas/SS-VLM/outputs_v2/metrics/seed_sweep
+MODELS=/home/rdas/SS-VLM/outputs_v2/models/seed_sweep
+
+for SEED in 42 123 2026
+do
+  python "${PY}" \
+    --mode train \
+    --data_dir "${DATA}" \
+    --model_variant sfra_v2 \
+    --model_path "${MODELS}/sfra_v2_l005_seed${SEED}.pth" \
+    --metrics_dir "${METRICS}" \
+    --seed "${SEED}" \
+    --epochs 200 \
+    --early_stop_patience 30 \
+    --batch_size 32 \
+    --num_workers 4 \
+    --lambda_cont 0.05 \
+    --supcon_start_epoch 6 \
+    --backbone_lr 1e-5 \
+    --head_lr 3e-4 \
+    --weight_decay 0.05 \
+    --label_smoothing 0.1
+done

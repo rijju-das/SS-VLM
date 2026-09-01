@@ -22,10 +22,10 @@ GROUPS = {
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Analyze SS-VLM v2 reliability outputs.")
-    parser.add_argument("--rag-root", default="outputs_v2/metrics/rag_fusion")
+    parser.add_argument("--rag-root", default="outputs_v2/metrics/rag_fusion_learned_au/beta005")
     parser.add_argument("--best-run", default="sfra_v2_l005_seed42")
     parser.add_argument("--ece-bins", type=int, default=10)
-    parser.add_argument("--output-dir", default="outputs_v2/metrics/reliability_analysis")
+    parser.add_argument("--output-dir", default="outputs_v2/metrics/reliability_analysis_learned_au")
     return parser.parse_args()
 
 

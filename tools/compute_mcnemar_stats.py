@@ -15,22 +15,22 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Compute exact McNemar tests for SS-VLM v2.")
     parser.add_argument(
         "--sfra-predictions",
-        default="outputs_v2/metrics/rag_fusion/sfra_v2_l005_seed42/sfra_v2_l005_seed42_rag_predictions.csv",
-        help="Best SFRA-RAG prediction CSV.",
+        default="outputs_v2/metrics/rag_fusion_learned_au/beta005/sfra_v2_l005_seed42/sfra_v2_l005_seed42_rag_predictions.csv",
+        help="Best learned-AU SFRA-RAG prediction CSV.",
     )
     parser.add_argument(
         "--plain-predictions",
-        default="outputs_v2/metrics/rag_fusion/plain_vit_ce_seed42/plain_vit_ce_seed42_rag_predictions.csv",
-        help="Same-seed Plain ViT-RAG prediction CSV.",
+        default="outputs_v2/metrics/rag_fusion_learned_au/beta005/plain_vit_ce_seed42/plain_vit_ce_seed42_rag_predictions.csv",
+        help="Same-seed learned-AU Plain ViT-RAG prediction CSV.",
     )
     parser.add_argument(
         "--output-json",
-        default="outputs_v2/metrics/statistical_tests/mcnemar_sfra_seed42.json",
+        default="outputs_v2/metrics/reliability_analysis_learned_au/mcnemar_sfra_seed42.json",
         help="Output JSON path.",
     )
     parser.add_argument(
         "--output-csv",
-        default="outputs_v2/metrics/statistical_tests/mcnemar_sfra_seed42.csv",
+        default="outputs_v2/metrics/reliability_analysis_learned_au/mcnemar_sfra_seed42.csv",
         help="Output CSV path.",
     )
     return parser.parse_args()

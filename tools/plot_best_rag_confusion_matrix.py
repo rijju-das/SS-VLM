@@ -29,12 +29,12 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--rag-root",
-        default="outputs_v2/metrics/rag_fusion",
+        default="outputs_v2/metrics/rag_fusion_learned_au/beta005",
         help="Directory containing per-run *_rag_summary.json files.",
     )
     parser.add_argument(
         "--output",
-        default="outputs_v2/figures/best_rag_confusion_matrix.pdf",
+        default="outputs_v2/figures/best_rag_confusion_matrix_learned_au.pdf",
         help="Output PDF path.",
     )
     parser.add_argument(

@@ -146,12 +146,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--data-root", required=True, help="RAF-DB root containing train/test folders.")
     parser.add_argument(
         "--plain-checkpoint",
-        default="outputs_v2/models/sweep/plain_vit_ce_seed42.pth",
+        default="outputs_v2/models/seed_sweep/plain_vit_ce_seed42.pth",
         help="Current v2 Plain ViT checkpoint. Default uses seed 42 for same-seed Figure 8 comparison.",
     )
     parser.add_argument(
         "--vit-gem-checkpoint",
-        default="outputs_v2/models/sweep/vit_gem_ce_seed42.pth",
+        default="outputs_v2/models/seed_sweep/vit_gem_ce_seed42.pth",
         help="Current v2 ViT+GeM checkpoint. Default uses seed 42 for same-seed Figure 8 comparison.",
     )
     parser.add_argument(

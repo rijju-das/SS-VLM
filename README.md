@@ -9,7 +9,7 @@ This repository is the **latest updated implementation** of the SS-VLM project:
 - Latest updated repository: https://github.com/rijju-das/SS-VLM
 - Base/original repository: https://github.com/Moonquakeyu/Spectral-Symbolic-VLM
 
-The base repository preserves the original concept-development path: RAF-DB dataset analysis, feature-manifold/t-SNE exploration, early notebooks, and hard-coded AU/FACS-prior prototypes. This repository contains the manuscript-aligned implementation, final v2 experiment scripts, learned-AU RAG fusion pipeline, audit/evaluation utilities, and the result artifacts used for the current paper.
+The base repository preserves the original concept-development path: RAF-DB dataset analysis, feature-manifold/t-SNE exploration, early notebooks, and hard-coded AU/FACS-prior prototypes. This repository contains the manuscript-aligned implementation, final v2 experiment scripts, learned-AU RAG fusion pipeline, and the audit and evaluation utilities used for the current paper.
 
 ## Project Story
 
@@ -302,11 +302,11 @@ Figure/au_mapping_heatmap_learned.pdf
 
 ## Training and RAG Evaluation
 
-Run the v2 training sweeps:
+Run the v2 seed sweeps:
 
 ```bash
-sbatch train_ssvlm_v2_sweep.job
 sbatch baseline_v2_seed_sweep.job
+sbatch ablation_ssvlm_v2_seed_sweep.job
 ```
 
 Run final learned-AU RAG over all seeds:
@@ -362,19 +362,19 @@ top_k = 9
 
 ## Manuscript-Aligned Results
 
-The final result artifacts are organized as follows:
+Generated results are stored locally in the following locations and are intentionally excluded from version control:
 
 - `outputs/rafdb_openface2_aus.csv`: OpenFace 2.0 AU features used by learned AU calibration.
 - `outputs_v2/models/seed_sweep/`: final seed-sweep checkpoints for Plain ViT, ViT+GeM, and SS-VLM / SFRA-RAG.
 - `outputs_v2/metrics/seed_sweep/`: classifier training histories and summaries.
 - `outputs_v2/metrics/rag_fusion_learned_au/beta005/`: final learned-AU RAG predictions, reports, summaries, and k-sensitivity files.
-- `outputs_v2/metrics/reliability_analysis_learned_au/`: manuscript-aligned correction-flow, per-class, McNemar-adjacent, and ECE summaries.
+- `outputs_v2/metrics/reliability_analysis_learned_au/`: manuscript-aligned correction-flow, per-class, McNemar, and ECE summaries.
 - `outputs_v2/au_calibrator/au_both_rf_seed42/`: selected RandomForest AU prior artifacts.
 - `outputs_v2/au_mapping/learned_au_mapping_intensity_elasticnet/`: sparse learned AU-emotion interpretation artifacts.
 - `outputs/openface2_raw/`: raw per-image OpenFace 2 CSV outputs.
 - `outputs_v2/figures/`: generated result figures.
 - `outputs_vlm/zero_shot/`: zero-shot InstructBLIP/LLaVA RAF-DB outputs.
-- `Figure/`: final paper-ready figure PDFs copied from the manuscript directory.
+- `Figure/`: local copies of selected paper-ready result figures.
 
 ## Figure Generation and Analysis
 
@@ -395,7 +395,7 @@ These scripts regenerate the reliability diagram, learned-AU mapping figure, con
 
 1. Create the SS-VLM environment using `environment-ssvlm.yml` or `requirements.txt`.
 2. Use `outputs/rafdb_openface2_aus.csv` directly, or regenerate it with the OpenFace 2 commands above.
-3. Run v2 classifier/seed sweeps with `train_ssvlm_v2_sweep.job` and `baseline_v2_seed_sweep.job`.
+3. Run v2 classifier/seed sweeps with `baseline_v2_seed_sweep.job` and `ablation_ssvlm_v2_seed_sweep.job`.
 4. Train or inspect AU models using `tools/train_au_emotion_tabular.py` and `tools/learn_au_emotion_mapping.py`.
 5. Run final learned-AU RAG evaluation with `rag_fusion_ssvlm_v2_learned_au_all_seeds.job`.
 6. Regenerate reliability, correction-flow, report-audit, and figure outputs with the scripts in `tools/`.
